@@ -37,15 +37,34 @@ drop_na(Dumpster) %>%
 ```
 
 Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
+__Answer__
+```{r Problem 1 part 2}
 
-```{r}
-
-Precipitation_2018<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "2018 Precipitation",range = "A2:B7")
+Precipitation_2018<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "2018 Precipitation",range = "A2:B9")
 Precipitation_2017<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "2017 Precipitation",range = "A2:B14")
+ncol(Precipitation_2018)
+###Clean up the data for 2018
+Precipitation_2018<-Precipitation_2018 %>% 
+  select( "Total Precipitation" = Total)%>%
+  mutate(year = 2018)%>%
+  mutate(Month = month.name[1:nrow(Precipitation_2018)])%>%
+  janitor::clean_names()
 
+###Clean up the data for 2017
+Precipitation_2017<-Precipitation_2017 %>% 
+  select( "Total Precipitation" = Total)%>%
+  mutate(year = 2017)%>%
+  mutate(Month = month.name[1:12])%>%
+  janitor::clean_names()
+
+bind_rows(Precipitation_2017,Precipitation_2018)
 ```
 
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
 
+__Answer__
+
+##
 
 
 
