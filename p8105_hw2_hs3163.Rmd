@@ -28,12 +28,22 @@ __Answer__
 ```{r Problem 1 part 1}
 ##Read Mr. Trash Wheel sheet, Ommiting the Column O and the header image.=
 Mr_Trash_Wheel <- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "Mr. Trash Wheel",range = "A2:N336")
-Mr_Trash_Wheel<-Mr_Trash_Wheel%>%
+Mr_Trash_Wheel <- Mr_Trash_Wheel%>%
 ##Remove the rows that don't contains row specific data
 drop_na(Dumpster) %>%
 ##Change month into factor
   janitor::clean_names()%>%
-  mutate(sports_balls = as.integer(sports_balls))
+  mutate(sports_balls = as.integer(sports_balls))%>%
+  ##all the typr of trash are actually one variable
+  pivot_longer(plastic_bottles:sports_balls,names_to = "trash_type", values_to = "trash_count")%>%
+        ##Trash type shall be factor for easier data analysis
+    mutate(trash_type = factor(trash_type)) %>%
+  ###To avoid confusion, rename
+  rename( all_type_weight_in_tons = weight_tons, 
+          all_type_volumn_in_cubic_yards = volume_cubic_yards,
+          all_type_homes_powered = homes_powered)
+
+Mr_Trash_Wheel
 ```
 
 Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
@@ -45,18 +55,18 @@ Precipitation_2017<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018
 ncol(Precipitation_2018)
 ###Clean up the data for 2018
 Precipitation_2018<-Precipitation_2018 %>% 
-  select( "Total Precipitation" = Total)%>%
+  rename( "Total Precipitation" = Total)%>%
   mutate(year = 2018)%>%
   mutate(Month = month.name[1:nrow(Precipitation_2018)])%>%
   janitor::clean_names()
 
 ###Clean up the data for 2017
 Precipitation_2017<-Precipitation_2017 %>% 
-  select( "Total Precipitation" = Total)%>%
+  rename( "Total Precipitation" = Total)%>%
   mutate(year = 2017)%>%
   mutate(Month = month.name[1:12])%>%
   janitor::clean_names()
-
+##Stack the two datas.
 bind_rows(Precipitation_2017,Precipitation_2018)
 ```
 
@@ -64,7 +74,8 @@ Write a paragraph about these data; you are encouraged to use inline R. Be sure 
 
 __Answer__
 
-##
+##Problem 2
+
 
 
 
