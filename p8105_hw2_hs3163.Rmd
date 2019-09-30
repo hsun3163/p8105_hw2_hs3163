@@ -2,7 +2,7 @@
 title: "p8105_hw2_hs3163"
 author: "Hao Sun"
 date: "9/24/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +12,7 @@ library(readxl)
 
 ```
 
-##Problem 1
+## Problem 1
 
 This problem uses the Mr. Trash Wheel dataset, available as an Excel file on the course website.
 
@@ -34,11 +34,11 @@ drop_na(Dumpster) %>%
 ##Change month into factor
   janitor::clean_names()%>%
   mutate(sports_balls = as.integer(sports_balls))%>%
-  ##all the typr of trash are actually one variable
+##all the typr of trash are actually one variable
   pivot_longer(plastic_bottles:sports_balls,names_to = "trash_type", values_to = "trash_count")%>%
-        ##Trash type shall be factor for easier data analysis
+##Trash type shall be factor for easier data analysis
     mutate(trash_type = factor(trash_type)) %>%
-  ###To avoid confusion, rename
+###To avoid confusion, rename
   rename( all_type_weight_in_tons = weight_tons, 
           all_type_volumn_in_cubic_yards = volume_cubic_yards,
           all_type_homes_powered = homes_powered)
@@ -51,21 +51,24 @@ __Answer__
 ```{r Problem 1 part 2}
 
 Precipitation_2018<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "2018 Precipitation",range = "A2:B9")
+
 Precipitation_2017<- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "2017 Precipitation",range = "A2:B14")
 ncol(Precipitation_2018)
+
 ###Clean up the data for 2018
 Precipitation_2018<-Precipitation_2018 %>% 
   rename( "Total Precipitation" = Total)%>%
   mutate(year = 2018)%>%
-  mutate(Month = month.name[1:nrow(Precipitation_2018)])%>%
+  mutate(Month = month.name[Month])%>%
   janitor::clean_names()
 
 ###Clean up the data for 2017
 Precipitation_2017<-Precipitation_2017 %>% 
   rename( "Total Precipitation" = Total)%>%
   mutate(year = 2017)%>%
-  mutate(Month = month.name[1:12])%>%
+  mutate(Month = month.name[Month])%>%
   janitor::clean_names()
+
 ##Stack the two datas.
 bind_rows(Precipitation_2017,Precipitation_2018)
 ```
@@ -74,11 +77,180 @@ Write a paragraph about these data; you are encouraged to use inline R. Be sure 
 
 __Answer__
 
-##Problem 2
+##  Problem 2
+First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
+
+__Answer__
+
+```{r Problem 2 part 1}
+##Read the data set
+pols_month<-read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv")%>%
+##separate the mon variable.
+separate(col = mon, into = c("year", "month","day"), sep = "-")%>%
+##Change the month in to number, and then map the correspond month name on it.
+  mutate(month = factor(month.name[as.numeric(month)]))%>%
+##Since president is either gop or dem, in prez_gop there is misentered value :2, so prez_dem will be used as ref
+  mutate(presidents = factor(prez_dem, labels = c("gop","dem")))%>%
+  ##Since year is a number, change year into numeric
+  mutate(year = as.numeric(year))%>%
+##Remove the unneeded columns.
+  select(-prez_dem,-prez_gop,-day)
+
+```
+
+Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.
+
+__Answer__
+
+```{r Problem 2 part 2}
+##Read the data set
+snp<-read_csv(file = "./data/fivethirtyeight_datasets/snp.csv")%>%
+##separate the date variable.
+separate(col = date, into = c("month","day","year"), sep = "/")%>%
+##Change the month in to number, and then map the correspond month name on it.
+  mutate(month = factor(month.name[as.numeric(month)]))%>%
+  ##Since year is a number, change year into numeric
+  mutate(year = as.numeric(year))%>%
+##Remove the unneeded columns and arrange the column.
+  select(year, month, close)
+```
+Third, tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
+
+__Answer__
+
+```{r Problem 2 part 3}
+unemployment <-read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv") %>%
+pivot_longer(Jan:Dec,names_to = "month", values_to = "unemployment_rate")%>%
+  ##Change the month into number
+  mutate(month = match(month,month.abb)) %>%
+  ##Change the month into full name
+  mutate(month = factor(month.name[month])) %>%
+  ##Change the year type into character
+  rename(year = Year) %>%
+  ##Rearrange the order
+  select(year,month,unemployment_rate)
+
+```
+
+Join the datasets by merging snp into pols, and merging unemployment into the result.
+
+```{r Problem 2 part 4}
+pols_snp_month<- left_join(pols_month,snp, by = c("year","month") )
+pols_snp_unemployment_per_month <- left_join(pols_snp_month,unemployment,by = c("year","month")  )
+pols_snp_unemployment_per_month
+```
+Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+
+__Answer__
+
+##  Problem 3
+
+Load and tidy the data. Note that, although these data may seem fairly well formatted initially, the names of a categorical predictor and the case structure of string variables changed over time; you’ll need to address this in your data cleaning. Also, some rows seem duplicated, and these will need to be removed (hint: google something like “dplyr remove duplicate rows” to get started).
+
+```{r Problem 3 part 1}
+Popular_Baby_Names <-read_csv(file = "./data/Popular_Baby_Names.csv") 
+
+Popular_Baby_Names
+
+Popular_Baby_Names<-Popular_Baby_Names%>%
+##Cleanup the names
+  janitor::clean_names()%>%
+##First handle the difference in cases 
+mutate(childs_first_name = str_to_sentence(childs_first_name))
+
+##clean up the different format in ethincity
+##Fix the ethnicity one by one
+Popular_Baby_Names_Asians<-Popular_Baby_Names%>%  
+  filter(str_detect(ethnicity,"ASIAN"))%>%
+  mutate(ethnicity = "ASIAN AND PACIFIC ISLANDER")
+
+Popular_Baby_Names_White<-Popular_Baby_Names%>%  
+  filter(str_detect(ethnicity,"WHITE"))%>%
+  mutate(ethnicity = "WHITE NON HISPANIC")
+
+
+Popular_Baby_Names_Black<-Popular_Baby_Names%>%  
+  filter(str_detect(ethnicity,"BLACK"))%>%
+  mutate(ethnicity = "BLACK NON HISPANIC")
+
+
+Popular_Baby_Names_Hisp<-Popular_Baby_Names%>%  
+  filter(ethnicity == "HISPANIC")
+
+##Bind the cleaned pieces together
+Popular_Baby_Names_Cleaned<-bind_rows(Popular_Baby_Names_Asians,Popular_Baby_Names_White,Popular_Baby_Names_Black,Popular_Baby_Names_Hisp)%>%
+##Remove duplicated rows
+distinct()%>%
+##Change the approperate variables into factors
+mutate(ethnicity = factor(ethnicity)) %>%
+  mutate(gender = factor(gender))
+```
+
+Produce a well-structured, reader-friendly table showing the rank in popularity of the name “Olivia” as a female baby name over time; this should have rows for ethnicities and columns for year. Produce a similar table showing the most popular name among male children over time.
 
 
 
+```{r Problem 3 part 2}
+###Finding the popularity of Olivia
+##Filter out the portion with only olivia
+Popular_Baby_Names_Cleaned%>%
+  filter(childs_first_name == "Olivia")%>%
+    filter(gender == "FEMALE")%>%
+##Select only the needed column
+  select(ethnicity,year_of_birth,rank)%>%
+##Make the table wider
+  pivot_wider(
+  names_from = "year_of_birth", 
+  values_from = "rank")
+```
 
 
+```{r Problem 3 part 2 Cont}
+####Finding the most popular boy's name
+Popular_Baby_Names_Cleaned%>%
+  filter(rank == "1")%>%
+  filter(gender == "MALE")%>%
+##Select only the needed column
+  select(ethnicity,year_of_birth,childs_first_name)%>%
+##Make the table wider
+  pivot_wider(
+  names_from = "year_of_birth", 
+  values_from = "childs_first_name")
 
+```
+
+__Answer__
+The most popular boys name is for Asian and Pacific Islander as well as Hispanic is Jayden, for White is Joseph, for Black are Jayden, Ethan, and Noah. Therefore, the most popular boy's name over time is Jayden. Following is the table showing the rank in popularity of the name “Jayden” in the same manner as that of "Olivia" 
+
+```{r  Problem 3 part 2 Cont 2}
+###Finding the popularity of Jayden
+##Filter out the portion with only Jayden
+Popular_Baby_Names_Cleaned%>%
+  filter(childs_first_name == "Jayden")%>%
+    filter(gender == "MALE")%>%
+##Select only the needed column
+  select(ethnicity,year_of_birth,rank)%>%
+##Make the table wider
+  pivot_wider(
+  names_from = "year_of_birth", 
+  values_from = "rank")
+```
+
+Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis).
+
+
+```{r Problem 3 part 3}
+##Filter out with only male, white non-hispanic children born in 2016
+
+Popular_Baby_Names_Cleaned%>%
+  filter( year_of_birth  == 2016 )%>%
+    filter(gender == "MALE") %>%
+    filter(ethnicity == "WHITE NON HISPANIC")%>%
+## Make the plot
+  ggplot(aes(x = rank, y = count)) + 
+  geom_point() +
+ggtitle("For 2016 White boy, the popularity of a name against the number of children with it")+
+labs(y="Number of children with a name", x = "Rank in popularity of a name")
+
+```
 
