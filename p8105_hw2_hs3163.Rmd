@@ -26,9 +26,10 @@ round the number of sports balls to the nearest integer and converts the result 
 
 __Answer__
 ```{r Problem 1 part 1}
+
 ##Read Mr. Trash Wheel sheet, Ommiting the Column O and the header image.=
 Mr_Trash_Wheel <- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "Mr. Trash Wheel",range = "A2:N336")
-Mr_Trash_Wheel <- Mr_Trash_Wheel%>%
+Mr_Trash_Wheel_cleaned <- Mr_Trash_Wheel%>%
 ##Remove the rows that don't contains row specific data
 drop_na(Dumpster) %>%
 ##Change month into factor
@@ -42,8 +43,6 @@ drop_na(Dumpster) %>%
   rename( all_type_weight_in_tons = weight_tons, 
           all_type_volumn_in_cubic_yards = volume_cubic_yards,
           all_type_homes_powered = homes_powered)
-
-Mr_Trash_Wheel
 ```
 
 Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
@@ -70,12 +69,25 @@ Precipitation_2017<-Precipitation_2017 %>%
   janitor::clean_names()
 
 ##Stack the two datas.
-bind_rows(Precipitation_2017,Precipitation_2018)
+Precipitation_2017_2018 <-bind_rows(Precipitation_2017,Precipitation_2018)
+Precipitation_2017_2018
+
+
+
 ```
+
 
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
 
 __Answer__
+The number of observations in the first resulting datasets is `r nrow(Mr_Trash_Wheel)`. The number of observations in the second resulting datasets is `r nrow(Precipitation_2017_2018)`. One key variable for the first table is the date, as the trash count for all the trash type except for glass bottles and cigarette increase till the middle of 2016 and then gradually drop. That said, another key variable will therefore be the type of trash as different types of trash have different pattern on their trash count over time. 
+
+The key variables to second result tabel are the variable month and year,for as time progress the total precipitation changes alone with it.
+
+For key variables in terms of indexing, the key variable for both data set are year and month for they combined can be used to identified a unique record in the second table to into the first one.
+
+The total precipitation in 2018 is `r filter(Precipitation_2017_2018,year == 2018)%>%pull(total_precipitation)%>%sum`. The median number of sports balls in a dumpster in 2017 is `r filter(Mr_Trash_Wheel_cleaned,year == 2017 & trash_type == "sports_balls")%>%pull(trash_count)%>%median`
+
 
 ##  Problem 2
 First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
@@ -101,6 +113,7 @@ separate(col = mon, into = c("year", "month","day"), sep = "-")%>%
 Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.
 
 __Answer__
+
 
 ```{r Problem 2 part 2}
 ##Read the data set
@@ -141,7 +154,14 @@ pols_snp_unemployment_per_month
 ```
 Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
+
+
 __Answer__
+
+The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015.
+
+
+
 
 ##  Problem 3
 
@@ -220,21 +240,11 @@ Popular_Baby_Names_Cleaned%>%
 ```
 
 __Answer__
-The most popular boys name is for Asian and Pacific Islander as well as Hispanic is Jayden, for White is Joseph, for Black are Jayden, Ethan, and Noah. Therefore, the most popular boy's name over time is Jayden. Following is the table showing the rank in popularity of the name “Jayden” in the same manner as that of "Olivia" 
+The most popular boys name is for Asian and Pacific Islander as well as Hispanic is Jayden, for White is Joseph, for Black are Jayden, Ethan, and Noah. Therefore, the most popular boy's name over time is Jayden. 
 
-```{r  Problem 3 part 2 Cont 2}
-###Finding the popularity of Jayden
-##Filter out the portion with only Jayden
-Popular_Baby_Names_Cleaned%>%
-  filter(childs_first_name == "Jayden")%>%
-    filter(gender == "MALE")%>%
-##Select only the needed column
-  select(ethnicity,year_of_birth,rank)%>%
-##Make the table wider
-  pivot_wider(
-  names_from = "year_of_birth", 
-  values_from = "rank")
-```
+_______________________________________________________________________________________________________________
+
+
 
 Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis).
 
