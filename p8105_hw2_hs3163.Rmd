@@ -28,7 +28,7 @@ __Answer__
 ```{r Problem 1 part 1}
 
 ##Read Mr. Trash Wheel sheet, Ommiting the Column O and the header image.=
-Mr_Trash_Wheel <- read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx",sheet = "Mr. Trash Wheel",range = "A2:N336")
+Mr_Trash_Wheel <- read_excel(path = "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",sheet = "Mr. Trash Wheel",range = cell_cols("A:N"))
 Mr_Trash_Wheel_cleaned <- Mr_Trash_Wheel%>%
 ##Remove the rows that don't contains row specific data
 drop_na(Dumpster) %>%
@@ -42,7 +42,8 @@ drop_na(Dumpster) %>%
 ###To avoid confusion, rename
   rename( all_type_weight_in_tons = weight_tons, 
           all_type_volumn_in_cubic_yards = volume_cubic_yards,
-          all_type_homes_powered = homes_powered)
+          all_type_homes_powered = homes_powered)%>%View
+
 ```
 
 Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
@@ -80,9 +81,9 @@ Precipitation_2017_2018
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
 
 __Answer__
-The number of observations in the first resulting datasets is `r nrow(Mr_Trash_Wheel)`. The number of observations in the second resulting datasets is `r nrow(Precipitation_2017_2018)`. One key variable for the first table is the date, as the trash count for all the trash type except for glass bottles and cigarette increase till the middle of 2016 and then gradually drop. That said, another key variable will therefore be the type of trash as different types of trash have different pattern on their trash count over time. 
+The number of observations in the first resulting datasets is `r nrow(Mr_Trash_Wheel)`. The number of observations in the second resulting datasets is `r nrow(Precipitation_2017_2018)`. One key variable for the first table is the date, as the trash count for all the trash type except for glass bottles and cigarette increase till the middle of 2016 and then gradually drop. That said, another key variable will, therefore, be the type of trash as different types of trash have a different pattern on their trash count over time. 
 
-The key variables to second result tabel are the variable month and year,for as time progress the total precipitation changes alone with it.
+The key variables to the second result table are the variable month and year, for as time progress the total precipitation changes along with it.
 
 For key variables in terms of indexing, the key variable for both data set are year and month for they combined can be used to identified a unique record in the second table to into the first one.
 
@@ -158,7 +159,11 @@ Write a short paragraph about these datasets. Explain briefly what each dataset 
 
 __Answer__
 
-The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015.
+The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015. Key variables are the year and months as the observations are "gov_gop", "sen_gop", "rep_gop", "gov_dem", "sen_dem","rep_dem", and "presidents".
+
+The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015. Key variables are the year and months as the observations are "gov_gop", "sen_gop", "rep_gop", "gov_dem", "sen_dem","rep_dem", and "presidents".
+
+
 
 
 
@@ -213,7 +218,7 @@ Produce a well-structured, reader-friendly table showing the rank in popularity 
 ```{r Problem 3 part 2}
 ###Finding the popularity of Olivia
 ##Filter out the portion with only olivia
-Popular_Baby_Names_Cleaned%>%
+Popularity_of_Olivia<-Popular_Baby_Names_Cleaned%>%
   filter(childs_first_name == "Olivia")%>%
     filter(gender == "FEMALE")%>%
 ##Select only the needed column
@@ -221,13 +226,16 @@ Popular_Baby_Names_Cleaned%>%
 ##Make the table wider
   pivot_wider(
   names_from = "year_of_birth", 
-  values_from = "rank")
+  values_from = "rank")%>%
+  knitr::kable(caption = "Table 1.The popularity of Olivia")
+Popularity_of_Olivia
+
 ```
 
 
 ```{r Problem 3 part 2 Cont}
 ####Finding the most popular boy's name
-Popular_Baby_Names_Cleaned%>%
+Most_popular_boy_s_name<-Popular_Baby_Names_Cleaned%>%
   filter(rank == "1")%>%
   filter(gender == "MALE")%>%
 ##Select only the needed column
@@ -235,8 +243,9 @@ Popular_Baby_Names_Cleaned%>%
 ##Make the table wider
   pivot_wider(
   names_from = "year_of_birth", 
-  values_from = "childs_first_name")
-
+  values_from = "childs_first_name")%>%
+knitr::kable(caption = "Table 2.The most popular boy's name")
+Most_popular_boy_s_name
 ```
 
 __Answer__
