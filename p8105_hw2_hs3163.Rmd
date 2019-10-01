@@ -42,8 +42,8 @@ drop_na(Dumpster) %>%
 ###To avoid confusion, rename
   rename( all_type_weight_in_tons = weight_tons, 
           all_type_volumn_in_cubic_yards = volume_cubic_yards,
-          all_type_homes_powered = homes_powered)%>%View
-
+          all_type_homes_powered = homes_powered)
+Mr_Trash_Wheel_cleaned
 ```
 
 Read and clean precipitation data for 2017 and 2018. For each, omit rows without precipitation data and add a variable year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).
@@ -159,14 +159,13 @@ Write a short paragraph about these datasets. Explain briefly what each dataset 
 
 __Answer__
 
-The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015. Key variables are the year and months as the observations are "gov_gop", "sen_gop", "rep_gop", "gov_dem", "sen_dem","rep_dem", and "presidents".
+The pols-month data set contains`r nrow(pols_month)` observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015. Key variables are the year and months.
 
-The pols-month data set contains 822 observations of the number of democratic or republican politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015. Key variables are the year and months as the observations are "gov_gop", "sen_gop", "rep_gop", "gov_dem", "sen_dem","rep_dem", and "presidents".
+The snp data set contains `r nrow(snp)` observations of the  closing values of the S&P stock index for the given montns within the range of Jan 1950 to July 2015. Key variables are the year and months.
 
+The unemployment data set contains`r nrow(unemployment)` observations of the unemplpoyment rate for any given montns within the range of Jan 1948 to Jun 2015. Key variables are the year and months.
 
-
-
-
+The resulting data set,pols_snp_unemployment_per_month, combined the aforementioned dataset to produce a data set with`r nrow(pols_snp_unemployment_per_month)` observations of the composistions of politicians at president, governer, and senator levels for any given montns within the range of Jan 1947 to Jun 2015, along with the associated S&P index and the unemployment rate of the given monts. There are `r ncol(pols_snp_unemployment_per_month)` types of observations recorded in this table. the indexing variables are the month and year. The observations are `r colnames(pols_snp_unemployment_per_month)[3:11]`
 
 ##  Problem 3
 
